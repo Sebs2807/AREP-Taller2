@@ -1,6 +1,5 @@
 # Proyecto HTTP Server en Java
 
-Breve descripción del proyecto.  
 Servidor HTTP en Java puro que muestra archivos estáticos y provee un servicio básico mediante un endpoint REST.
 
 ---
