@@ -25,13 +25,14 @@ Pasos para ejecutar el servidor en tu entorno local:
 1. Clonar el repositorio
 
     git clone https://github.com/Sebs2807/AREP-Taller1.git
+   
     cd arep
 
-2. Compilar el proyecto
+3. Compilar el proyecto
     
     mvn clean install
 
-3. Ejecutar el servidor
+4. Ejecutar el servidor
 
     mvn exec:java
 
