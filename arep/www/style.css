@@ -1,0 +1,98 @@
+/* Fuente general */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Encabezado */
+header {
+    background: linear-gradient(135deg, #1a1a1a, #333);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+/* Contenido principal */
+.contenido {
+    background-image: url("images/cielo.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: calc(100vh - 140px); /* altura menos header+footer */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+/* Caja central */
+.api {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Título dentro de api */
+.api h2 {
+    margin-bottom: 20px;
+    color: #222;
+}
+
+/* Input */
+.api input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.api input[type="text"]:focus {
+    border-color: #4CAF50;
+    box-shadow: 0px 0px 8px rgba(76, 175, 80, 0.4);
+}
+
+/* Botón */
+.api button {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.api button:hover {
+    background: #45a049;
+    transform: scale(1.05);
+}
+
+/* Respuesta */
+#respuesta {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Footer */
+footer {
+    background-image: url("images/footer.png");
+    color: black;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    border-top: 1px solid #ddd;
+    font-weight: bold;
+}

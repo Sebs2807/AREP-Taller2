@@ -12,14 +12,12 @@ public class HttpServer {
             serverSocket = new ServerSocket(36000);
             System.out.println("Servidor iniciado en puerto 36000");
         } catch (IOException e) {
-            System.err.println("No se pudo abrir el puerto 36000.");
-            System.exit(1);
+            System.err.println("El puerto 36000 esta ocupado o no fue posible acceder a él.");
         }
 
         boolean running = true;
         while (running) {
             try (Socket clientSocket = serverSocket.accept()) {
-                System.out.println("Cliente conectado: " + clientSocket.getInetAddress());
                 handleClient(clientSocket);
             } catch (IOException e) {
                 System.err.println("Error al aceptar cliente: " + e.getMessage());
@@ -40,65 +38,80 @@ public class HttpServer {
         System.out.println("Petición: " + requestLine);
 
         String[] parts = requestLine.split(" ");
-        String method = parts[0];
-        String path = parts[1];
 
-        // Consumir el resto de cabeceras HTTP
+        URI reqUri;
+        try {
+            reqUri = new URI(parts[1]);
+        } catch (Exception e) {
+            System.err.println("Error al parsear la URI: " + e.getMessage());
+            return;
+        }
+
+        String path = reqUri.getPath();
+
+        String query = reqUri.getQuery();
+
+        System.out.println("Path: " + path);
+        if (query != null) {
+            System.out.println("Query: " + query);
+        }
+
         while (in.ready()) {
             String header = in.readLine();
             if (header.isEmpty()) break;
         }
 
         if (path.startsWith("/api/")) {
-            handleApi(out, path);
+            API(out, path, query);
         } else {
-            serveFile(out, path);
+            ventanaPrincipal(out, path);
         }
 
         out.flush();
     }
 
-    private static void serveFile(OutputStream out, String path) throws IOException {
+    private static void ventanaPrincipal(OutputStream out, String path) throws IOException {
         if (path.equals("/")) {
             path = "/index.html";
         }
 
         File file = new File("www" + path);
-        if (file.exists() && !file.isDirectory()) {
-            String contentType = guessContentType(file.getName());
+        File errorFile = new File("www/404.html");
+
+        if (file.exists()) {
+            String contentType = asignarContentType(file.getName());
             byte[] fileBytes = Files.readAllBytes(file.toPath());
 
             PrintWriter headerOut = new PrintWriter(out, false);
             headerOut.print("HTTP/1.1 200 OK\r\n");
             headerOut.print("Content-Type: " + contentType + "\r\n");
             headerOut.print("Content-Length: " + fileBytes.length + "\r\n");
-            headerOut.print("Connection: close\r\n");
             headerOut.print("\r\n");
             headerOut.flush();
-
             out.write(fileBytes);
         } else {
-            String errorMsg = "<h1>404 Not Found</h1>";
-            PrintWriter outWriter = new PrintWriter(out, true);
-            outWriter.println("HTTP/1.1 404 Not Found");
-            outWriter.println("Content-Type: text/html");
-            outWriter.println("Content-Length: " + errorMsg.length());
-            outWriter.println();
-            outWriter.println(errorMsg);
+            byte[] fileBytes = Files.readAllBytes(errorFile.toPath());
+            PrintWriter headerOut = new PrintWriter(out, false);
+            headerOut.print("HTTP/1.1 404 Not Found\r\n");
+            headerOut.print("Content-Type: text/html\r\n");
+            headerOut.print("Content-Length: " + fileBytes.length + "\r\n");
+            headerOut.print("\r\n");
+            headerOut.flush();
+            out.write(fileBytes);
         }
     }
 
-    private static void handleApi(OutputStream out, String path) throws IOException {
-        String response;
+    private static void API(OutputStream out, String path, String query) throws IOException {
+        String response = " ";
 
         if (path.startsWith("/api/hello")) {
-            String name = "Mundo";
-            if (path.contains("?name=")) {
-                name = path.split("\\?name=")[1];
+            String name = null;
+
+            if (query != null && query.startsWith("name=")) {
+                name = query.split("name=")[1];
             }
+
             response = "{ \"message\": \"Hola " + name + "!\" }";
-        } else {
-            response = "{ \"error\": \"Endpoint no encontrado\" }";
         }
 
         PrintWriter outWriter = new PrintWriter(out, true);
@@ -109,13 +122,32 @@ public class HttpServer {
         outWriter.println(response);
     }
 
-    private static String guessContentType(String fileName) {
-        if (fileName.endsWith(".html") || fileName.endsWith(".htm")) return "text/html";
-        if (fileName.endsWith(".css")) return "text/css";
-        if (fileName.endsWith(".js")) return "application/javascript";
-        if (fileName.endsWith(".png")) return "image/png";
-        if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) return "image/jpeg";
-        if (fileName.endsWith(".gif")) return "image/gif";
-        return "application/octet-stream";
+
+    private static String asignarContentType(String archivo) {
+        String encabezado = " ";
+        String extension = archivo.substring(archivo.indexOf(".") + 1);
+        switch (extension) {
+            case "html":
+                encabezado = "text/html";
+                break;
+            case "css":
+                encabezado = "text/css";
+                break;
+            case "js":
+                encabezado = "application/javascript";
+                break;
+            case "png":
+                encabezado = "image/png";
+                break;
+            case "jpg":
+                encabezado = "image/jpeg";
+                break;
+            case "gif":
+                encabezado = "image/gif";
+                break;
+            default:
+                break;
+        }
+        return encabezado;
     }
 }
