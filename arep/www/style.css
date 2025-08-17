@@ -21,7 +21,7 @@ header {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    min-height: calc(100vh - 140px); /* altura menos header+footer */
+    min-height: calc(100vh - 140px);
     display: flex;
     justify-content: center;
     align-items: center;

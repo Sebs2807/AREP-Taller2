@@ -5,14 +5,16 @@ import java.io.*;
 import java.nio.file.Files;
 
 public class HttpServer {
-
+    /**
+     * Método principal que inicia el servidor HTTP.
+     */
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(36000);
             System.out.println("Servidor iniciado en puerto 36000");
         } catch (IOException e) {
-            System.err.println("El puerto 36000 esta ocupado o no fue posible acceder a él.");
+            System.err.println("El puerto 36000 está ocupado o no fue posible acceder a él.");
         }
 
         boolean running = true;
@@ -26,6 +28,11 @@ public class HttpServer {
         serverSocket.close();
     }
 
+    /**
+     * Clase que maneja las peticiones de los clientes.
+     * @param clientSocket Socket del cliente que realiza la petición.
+     * @throws IOException en caso de error al leer o escribir en el socket.
+     */
     private static void handleClient(Socket clientSocket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         OutputStream out = clientSocket.getOutputStream();
@@ -38,7 +45,6 @@ public class HttpServer {
         System.out.println("Petición: " + requestLine);
 
         String[] parts = requestLine.split(" ");
-
         URI reqUri;
         try {
             reqUri = new URI(parts[1]);
@@ -48,7 +54,6 @@ public class HttpServer {
         }
 
         String path = reqUri.getPath();
-
         String query = reqUri.getQuery();
 
         System.out.println("Path: " + path);
@@ -61,8 +66,8 @@ public class HttpServer {
             if (header.isEmpty()) break;
         }
 
-        if (path.startsWith("/api/")) {
-            API(out, path, query);
+        if (path.startsWith("/app/")) {
+            procesarServicios(out, reqUri);
         } else {
             ventanaPrincipal(out, path);
         }
@@ -70,6 +75,12 @@ public class HttpServer {
         out.flush();
     }
 
+    /**
+     * Muestra la ventana principal del servidor, sirviendo archivos estáticos.
+     * @param out Salida donde se escribirá la respuesta.
+     * @param path Ruta solicitada por el cliente.
+     * @throws IOException en caso de error al leer el archivo o escribir en el OutputStream.
+     */
     private static void ventanaPrincipal(OutputStream out, String path) throws IOException {
         if (path.equals("/")) {
             path = "/index.html";
@@ -101,17 +112,20 @@ public class HttpServer {
         }
     }
 
-    private static void API(OutputStream out, String path, String query) throws IOException {
-        String response = " ";
+    /**
+     * Procesa las peticiones a los servicios definidos en la aplicación.
+     * @param out Salida donde se escribirá la respuesta.
+     * @param requestUri URI de la petición del cliente.
+     * @throws IOException en caso de error al escribir en el OutputStream.
+     */
+    private static void procesarServicios(OutputStream out, URI requestUri) throws IOException {
+        String path = requestUri.getPath();
+        String response = "";
 
-        if (path.startsWith("/api/hello")) {
-            String name = null;
-
-            if (query != null && query.startsWith("name=")) {
-                name = query.split("name=")[1];
-            }
-
-            response = "{ \"message\": \"Hola " + name + "!\" }";
+        if (path.equals("/app/hello")) {
+            response = helloService(requestUri);
+        } else {
+            response = "{ \"error\": \"Servicio no encontrado\" }";
         }
 
         PrintWriter outWriter = new PrintWriter(out, true);
@@ -122,32 +136,38 @@ public class HttpServer {
         outWriter.println(response);
     }
 
+    /**
+     * Genera una respuesta para el servicio.
+     * @param requestUri URI de la petición del cliente.
+     * @return Respuesta en formato JSON.
+     */
+    private static String helloService(URI requestUri) {
+        String name = " ";
+
+        if (requestUri.getQuery() != null && requestUri.getQuery().startsWith("name=")) {
+            name = requestUri.getQuery().split("=")[1];
+        }
+
+        return "{ \"mensaje\": \"Hola " + name + "\" }";
+    }
 
     private static String asignarContentType(String archivo) {
-        String encabezado = " ";
-        String extension = archivo.substring(archivo.indexOf(".") + 1);
+        String extension = archivo.substring(archivo.lastIndexOf(".") + 1);
         switch (extension) {
             case "html":
-                encabezado = "text/html";
-                break;
+                return "text/html";
             case "css":
-                encabezado = "text/css";
-                break;
+                return "text/css";
             case "js":
-                encabezado = "application/javascript";
-                break;
+                return "application/javascript";
             case "png":
-                encabezado = "image/png";
-                break;
+                return "image/png";
             case "jpg":
-                encabezado = "image/jpeg";
-                break;
+                return "image/jpeg";
             case "gif":
-                encabezado = "image/gif";
-                break;
+                return "image/gif";
             default:
-                break;
+                return " ";
         }
-        return encabezado;
     }
 }
