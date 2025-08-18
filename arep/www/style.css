@@ -30,7 +30,7 @@ header {
 
 /* Caja central */
 .api {
-    background: rgba(255, 255, 255, 0.9);
+    background: lightblue;
     padding: 30px 40px;
     border-radius: 15px;
     box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
@@ -65,7 +65,7 @@ header {
 /* Botón */
 .api button {
     padding: 10px 20px;
-    background: #4CAF50;
+    background: #FFA500;
     color: white;
     border: none;
     border-radius: 8px;
