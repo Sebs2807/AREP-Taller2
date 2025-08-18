@@ -2,6 +2,21 @@
 
 Servidor HTTP en Java puro que muestra archivos estáticos y provee un servicio básico mediante un endpoint REST.
 
+## 🏗️ Arquitectura del prototipo
+
+El prototipo implementa un **servidor HTTP básico** en Java con la siguiente arquitectura:
+
+- **Servidor HTTP (HttpServer.java)**  
+  Maneja las conexiones entrantes mediante `ServerSocket` y procesa las peticiones de los clientes.
+
+- **Módulo de servicios (/app)**  
+  Expone endpoints simples (ejemplo: `/app/hello`) que responden en formato JSON.
+
+- **Módulo de archivos estáticos (/www)**  
+  Contiene los recursos que el servidor puede entregar directamente (HTML, CSS, JS, imágenes).  
+  - `index.html` → Página principal  
+  - `404.html` → Página de error cuando no se encuentra un recurso
+    
 ---
 
 ## 🚀 Comenzando
