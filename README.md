@@ -91,6 +91,25 @@ mvn test
 
 - Maven - Gestión de dependencias y ejecución
 
+
+### Ejemplos de uso con curl
+
+```bash
+curl http://localhost:36000/
+```
+
+```bash
+curl http://localhost:36000/style.css
+
+```
+
+```bash
+curl http://localhost:36000/app/hello?name=Sebastian
+```
+
+```bash
+curl http://localhost:36000/noexiste.html
+```
 ### ✒️ Autores
 
 Sebastian Velasquez - Sebs2807
