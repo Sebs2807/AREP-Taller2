@@ -25,6 +25,8 @@ Pasos para ejecutar el servidor en tu entorno local:
 1. Clonar el repositorio
 
     git clone https://github.com/Sebs2807/AREP-Taller1.git
+
+    cd AREP-Taller1
    
     cd arep
 
