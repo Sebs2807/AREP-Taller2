@@ -3,18 +3,36 @@ package eci.escuelaing.edu.co;
 import java.net.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpServer {
+    private static final Map<String, Servicio> rutas = new HashMap<>();
+
+    /**
+     * Método para registrar un servicio en una ruta específica.
+     * @param path Ruta donde se registrará el servicio.
+     * @param servicio Servicio que se registrará en la ruta.
+     */
+    public static void get(String path, Servicio servicio) {
+        rutas.put(path, servicio);
+    };
+
     /**
      * Método principal que inicia el servidor HTTP.
      */
     public static void main(String[] args) throws IOException {
+        get("/hello", (req, res) -> {
+            String name = req.getQuery("name");
+            return "{ \"mensaje\": \"Hola " + (name != null ? name : "mundo") + "\" }";
+        });
+
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(36000);
-            System.out.println("Servidor iniciado en puerto 36000");
+            serverSocket = new ServerSocket(8080);
+            System.out.println("Servidor iniciado en puerto 8080");
         } catch (IOException e) {
-            System.err.println("El puerto 36000 está ocupado o no fue posible acceder a él.");
+            System.err.println("El puerto 8080 está ocupado o no fue posible acceder a él.");
         }
 
         boolean running = true;
@@ -42,7 +60,7 @@ public class HttpServer {
             return;
         }
 
-        System.out.println("Petición: " + requestLine);
+        // System.out.println("Petición: " + requestLine);
 
         String[] parts = requestLine.split(" ");
         URI reqUri;
@@ -56,9 +74,9 @@ public class HttpServer {
         String path = reqUri.getPath();
         String query = reqUri.getQuery();
 
-        System.out.println("Path: " + path);
+        // System.out.println("Path: " + path);
         if (query != null) {
-            System.out.println("Query: " + query);
+            // System.out.println("Query: " + query);
         }
 
         while (in.ready()) {
@@ -113,18 +131,26 @@ public class HttpServer {
     }
 
     /**
-     * Procesa las peticiones a los servicios definidos en la aplicación.
-     * @param out Salida donde se escribirá la respuesta.
-     * @param requestUri URI de la petición del cliente.
-     * @throws IOException en caso de error al escribir en el OutputStream.
+     * Procesa las peticiones a los servicios registrados en las rutas.
+     * @param out Salida donde se escribirá la respuesta del servicio.
+     * @param requestUri URI de la petición del cliente. 
+     * @throws IOException en caso de error al escribir en el OutputStream o al procesar la petición del servicio.
      */
     private static void procesarServicios(OutputStream out, URI requestUri) throws IOException {
-        String path = requestUri.getPath();
-        String response = "";
+        HttpRequest request = new HttpRequest(requestUri);
+        String path = request.getNormalizedPath();
+        Servicio servicio = rutas.get(path);
 
-        if (path.equals("/app/hello")) {
-            response = helloService(requestUri);
+        String response;
+
+        if (servicio != null) {
+            HttpRequest req = new HttpRequest(requestUri);
+            HttpResponse res = new HttpResponse();
+            response = servicio.peticiones(req, res);
         } else {
+            for(String a: rutas.keySet()){
+                System.out.println("Ruta registrada: " + a);
+            }
             response = "{ \"error\": \"Servicio no encontrado\" }";
         }
 
