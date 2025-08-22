@@ -22,14 +22,7 @@ public class HttpRequest {
         return null;
     }
 
-    /**
-     * Devuelve el path de la petición sin el prefijo "/app".
-     */
-    public String getNormalizedPath() {
-        String path = requestUri.getPath();
-        if (path.startsWith("/app")) {
-            path = path.substring(4);
-        }
-        return path;
+    public String getPath() {
+        return requestUri.getPath();
     }
 }

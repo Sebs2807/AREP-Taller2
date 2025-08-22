@@ -3,12 +3,15 @@ package eci.escuelaing.edu.co;
 import java.net.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HttpServer {
     private static final Map<String, Servicio> rutas = new HashMap<>();
-
+    private static Path staticFilesRoot = Paths.get("www").toAbsolutePath().normalize();
+    
     /**
      * Método para registrar un servicio en una ruta específica.
      * @param path Ruta donde se registrará el servicio.
@@ -19,12 +22,35 @@ public class HttpServer {
     };
 
     /**
+     * Configura la carpeta desde la cual se servirán los archivos estáticos.
+     * @param folder Ruta de la carpeta que contiene los archivos estáticos.
+     */
+    public static void staticfiles(String folder) {
+        Path base = Paths.get(folder).toAbsolutePath().normalize();
+
+        if (!base.toFile().exists()) {
+            System.out.println("La carpeta '" + base + "' no existe. Se usará la carpeta por defecto ./www");
+            base = Paths.get("www").toAbsolutePath().normalize();
+        }
+
+        staticFilesRoot = base;
+        System.out.println("Carpeta de archivos estáticos configurada en: " + staticFilesRoot);
+    }
+
+    /**
      * Método principal que inicia el servidor HTTP.
      */
     public static void main(String[] args) throws IOException {
+        staticfiles("C:\\Users\\sebas\\OneDrive\\Escritorio\\AREP\\AREP-Taller2\\arep\\www");
+        
+
         get("/hello", (req, res) -> {
             String name = req.getQuery("name");
-            return "{ \"mensaje\": \"Hola " + (name != null ? name : "mundo") + "\" }";
+            if (name == null || name.isEmpty()) {
+                return "Hola Mundo";
+            } else {
+                return "{ \"mensaje\": \"Hola " + name + "\" }";
+            }
         });
 
         ServerSocket serverSocket = null;
@@ -84,7 +110,7 @@ public class HttpServer {
             if (header.isEmpty()) break;
         }
 
-        if (path.startsWith("/app/")) {
+        if (rutas.containsKey(path)) {
             procesarServicios(out, reqUri);
         } else {
             ventanaPrincipal(out, path);
@@ -104,8 +130,8 @@ public class HttpServer {
             path = "/index.html";
         }
 
-        File file = new File("www" + path);
-        File errorFile = new File("www/404.html");
+        File file = staticFilesRoot.resolve(path.substring(1)).toFile();
+        File errorFile = staticFilesRoot.resolve("404.html").toFile();
 
         if (file.exists()) {
             String contentType = asignarContentType(file.getName());
@@ -138,44 +164,34 @@ public class HttpServer {
      */
     private static void procesarServicios(OutputStream out, URI requestUri) throws IOException {
         HttpRequest request = new HttpRequest(requestUri);
-        String path = request.getNormalizedPath();
-        Servicio servicio = rutas.get(path);
+        Servicio servicio = rutas.get(request.getPath());
 
         String response;
+        String contentType;
 
         if (servicio != null) {
-            HttpRequest req = new HttpRequest(requestUri);
             HttpResponse res = new HttpResponse();
-            response = servicio.peticiones(req, res);
-        } else {
-            for(String a: rutas.keySet()){
-                System.out.println("Ruta registrada: " + a);
+            response = servicio.peticiones(request, res);
+
+            // Detectar si es JSON
+            if (response.trim().startsWith("{") || response.trim().startsWith("[")) {
+                contentType = "application/json; charset=UTF-8";
+            } else {
+                contentType = "text/plain; charset=UTF-8";
             }
+        } else {
             response = "{ \"error\": \"Servicio no encontrado\" }";
+            contentType = "application/json; charset=UTF-8";
         }
 
         PrintWriter outWriter = new PrintWriter(out, true);
         outWriter.println("HTTP/1.1 200 OK");
-        outWriter.println("Content-Type: application/json");
-        outWriter.println("Content-Length: " + response.length());
+        outWriter.println("Content-Type: " + contentType);
+        outWriter.println("Content-Length: " + response.getBytes().length);
         outWriter.println();
         outWriter.println(response);
     }
 
-    /**
-     * Genera una respuesta para el servicio.
-     * @param requestUri URI de la petición del cliente.
-     * @return Respuesta en formato JSON.
-     */
-    private static String helloService(URI requestUri) {
-        String name = " ";
-
-        if (requestUri.getQuery() != null && requestUri.getQuery().startsWith("name=")) {
-            name = requestUri.getQuery().split("=")[1];
-        }
-
-        return "{ \"mensaje\": \"Hola " + name + "\" }";
-    }
 
     private static String asignarContentType(String archivo) {
         String extension = archivo.substring(archivo.lastIndexOf(".") + 1);
