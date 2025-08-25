@@ -1,78 +1,92 @@
-// package eci.escuelaing.edu.co;
-// import org.junit.jupiter.api.*;
-// import java.io.*;
-// import java.net.*;
-// import java.util.concurrent.*;
+package eci.escuelaing.edu.co;
 
-// import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import java.io.*;
+import java.net.*;
+import java.util.concurrent.*;
 
-// class HttpServerTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-//     private static ExecutorService executor;
+class HttpServerTest {
 
-//     @BeforeAll
-//     static void setUp() {
-//         executor = Executors.newSingleThreadExecutor();
-//         executor.submit(() -> {
-//             try {
-//                 HttpServer.main(new String[]{});
-//             } catch (IOException e) {
-//                 e.printStackTrace();
-//             }
-//         });
+    private static ExecutorService executor;
 
-//         try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-//     }
+    @BeforeAll
+    static void setUp() {
+        executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            try {
+                HttpServer.main(new String[]{});
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
-//     @AfterAll
-//     static void tearDown() {
-//         executor.shutdownNow();
-//     }
+        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+    }
 
-//     @Test
-//     void testHelloApi() throws Exception {
-//         URL url = new URL("http://localhost:36000/app/hello?name=Sebastian");
-//         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//         con.setRequestMethod("GET");
+    @AfterAll
+    static void tearDown() {
+        executor.shutdownNow();
+    }
 
-//         assertEquals(200, con.getResponseCode());
+    @Test
+    void testHelloApiJson() throws Exception {
+        URL url = new URL("http://localhost:8080/hello?name=Sebastian");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
 
-//         try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-//             String response = in.readLine();
-//             assertTrue(response.contains("Hola Sebastian"));
-//         }
-//     }
+        assertEquals(200, con.getResponseCode());
+        assertEquals("application/json; charset=UTF-8", con.getContentType());
 
-//     @Test
-//     void testIndexHtmlExists() throws Exception {
-//         URL url = new URL("http://localhost:36000/");
-//         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//         con.setRequestMethod("GET");
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            String response = in.readLine();
+            assertTrue(response.contains("\"Hola Sebastian\""));
+        }
+    }
 
-//         assertEquals(200, con.getResponseCode());
-//         assertEquals("text/html", con.getContentType());
-//     }
+    @Test
+    void testHelloQueryPlainText() throws Exception {
+        URL url = new URL("http://localhost:8080/helloQuery?name=Sebastian");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
 
-//     @Test
-//     void testNotFound() throws Exception {
-//         URL url = new URL("http://localhost:36000/prueba.html");
-//         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//         con.setRequestMethod("GET");
+        assertEquals(200, con.getResponseCode());
+        assertEquals("text/plain; charset=UTF-8", con.getContentType());
 
-//         assertEquals(404, con.getResponseCode());
-//     }
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            String response = in.readLine();
+            assertEquals("Hola Sebastian", response);
+        }
+    }
 
-//     @Test
-//     void testServicioNoEncontrado() throws Exception {
-//         URL url = new URL("http://localhost:36000/app/noEndpoint");
-//         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-//         con.setRequestMethod("GET");
+    @Test
+    void testIndexHtmlExists() throws Exception {
+        URL url = new URL("http://localhost:8080/");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
 
-//         assertEquals("application/json", con.getContentType());
+        assertEquals(200, con.getResponseCode());
+        assertEquals("text/html", con.getContentType());
+    }
 
-//         try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-//             String response = in.readLine();
-//             assertTrue(response.contains("Servicio no encontrado"));
-//         }
-//     }
-// }
+    @Test
+    void testNotFoundStaticFile() throws Exception {
+        URL url = new URL("http://localhost:8080/noExiste.html");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+
+        assertEquals(404, con.getResponseCode());
+        assertEquals("text/html", con.getContentType());
+    }
+
+    @Test
+    void testServicioNoEncontrado() throws Exception {
+        URL url = new URL("http://localhost:8080/app/noEndpoint");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+        assertEquals(404, con.getResponseCode());
+        assertEquals("text/html", con.getContentType());
+    }
+
+}
