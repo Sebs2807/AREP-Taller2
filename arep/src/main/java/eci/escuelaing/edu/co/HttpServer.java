@@ -41,7 +41,7 @@ public class HttpServer {
      * Método principal que inicia el servidor HTTP.
      */
     public static void main(String[] args) throws IOException {
-        staticfiles("C:\\Users\\sebas\\OneDrive\\Escritorio\\AREP\\AREP-Taller2\\arep\\www");
+        staticfiles("/www");
         
 
         get("/hello", (req, res) -> {
@@ -50,6 +50,16 @@ public class HttpServer {
                 return "Hola Mundo";
             } else {
                 return "{ \"mensaje\": \"Hola " + name + "\" }";
+            }
+        });
+
+        get("/helloQuery", (req, res) -> {
+            String name = req.getQuery("name");
+
+            if (name != null){
+                return "Hola"  + " " + name;
+            }else{
+                return "La sintaxis es incorrecta";
             }
         });
 

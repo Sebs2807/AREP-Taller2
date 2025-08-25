@@ -102,13 +102,21 @@ mvn test
   
 - http://localhost:36000/[archivo] (Sirve cualquier recurso dentro de www).
 
+- http://localhost:36000/app/pi (Devuelve el valor de PI como String).
+
+- http://localhost:36000/hello (Devuelve un String Hola Mundo).
+
+- http://localhost:36000/helloQuery?name=TuNombre (Devuelve un String con un saludo).
+
 ### 🛠️ Construido con
 
 - Java - Lenguaje de programación
 
 - Maven - Gestión de dependencias y ejecución
 
+## 📝 Ejemplo de uso del framework
 
+![Codigo](/AREP-Taller2/arep/www/images/code.png)
 ### Ejemplos de uso con curl
 
 ```bash
