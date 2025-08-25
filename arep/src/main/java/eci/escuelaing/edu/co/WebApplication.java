@@ -1,6 +1,9 @@
 package eci.escuelaing.edu.co;
 
 public class WebApplication {
+    /**
+     * Método principal que configura y ejecuta la aplicación web.
+     */
     public static void main(String[] args) {
         HttpServer.staticfiles("webroot");
 

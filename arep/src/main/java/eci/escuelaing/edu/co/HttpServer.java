@@ -183,7 +183,6 @@ public class HttpServer {
             HttpResponse res = new HttpResponse();
             response = servicio.peticiones(request, res);
 
-            // Detectar si es JSON
             if (response.trim().startsWith("{") || response.trim().startsWith("[")) {
                 contentType = "application/json; charset=UTF-8";
             } else {
@@ -191,7 +190,7 @@ public class HttpServer {
             }
         } else {
             response = "{ \"error\": \"Servicio no encontrado\" }";
-            contentType = "application/json; charset=UTF-8";
+            contentType = "text/html; charset=UTF-8";
         }
 
         PrintWriter outWriter = new PrintWriter(out, true);
@@ -202,7 +201,11 @@ public class HttpServer {
         outWriter.println(response);
     }
 
-
+    /**
+     * Asigna el tipo de contenido basado en la extensión del archivo.
+     * @param archivo Nombre del archivo.
+     * @return Tipo de contenido correspondiente a la extensión del archivo.
+     */
     private static String asignarContentType(String archivo) {
         String extension = archivo.substring(archivo.lastIndexOf(".") + 1);
         switch (extension) {
