@@ -115,8 +115,8 @@ mvn test
 - Maven - Gestión de dependencias y ejecución
 
 ## 📝 Ejemplo de uso del framework
+<img width="1398" height="1014" alt="code" src="https://github.com/user-attachments/assets/41c7e743-0701-4358-a7f4-95546fc1dfc8" />
 
-![Codigo](/AREP-Taller2/arep/www/images/code.png)
 ### Ejemplos de uso con curl
 
 ```bash
