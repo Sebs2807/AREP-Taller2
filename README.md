@@ -108,13 +108,16 @@ mvn test
 
 - http://localhost:36000/helloQuery?name=TuNombre (Devuelve un String con un saludo).
 
+### ✅ Comprobación de resultado esperado de los test
+<img width="1211" height="445" alt="image" src="https://github.com/user-attachments/assets/494693c4-79f7-42b1-8c9e-f9b9687fc813" />
+
 ### 🛠️ Construido con
 
 - Java - Lenguaje de programación
 
 - Maven - Gestión de dependencias y ejecución
 
-## 📝 Ejemplo de uso del framework
+### 📝 Ejemplo de uso del framework
 <img width="1398" height="1014" alt="code" src="https://github.com/user-attachments/assets/41c7e743-0701-4358-a7f4-95546fc1dfc8" />
 
 ### Ejemplos de uso con curl
